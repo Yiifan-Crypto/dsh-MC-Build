@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.11] - 2026-11-25
+
+### Fixed
+
+- **更新报 `spawn pnpm ENOENT`。** DSH 没有把自带的 pnpm 放进子进程 PATH，所以在
+  DSH 宿主里直接 `spawn('pnpm')` 找不到可执行文件。现在先找 DSH 运行时里随附的
+  `dsh-runtimes/<runtime>/dependencies/pnpm/bin/pnpm.cjs`（用 node 执行），
+  `DSH_RUNTIME_PNPM` 可显式指定，最后才退回 PATH。
+
 ## [3.0.10] - 2026-11-25
 
 ### Fixed

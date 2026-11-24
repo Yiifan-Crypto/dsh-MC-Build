@@ -12,7 +12,8 @@
 // to restart DSH, because the running process still holds the old code.
 
 import { spawn } from 'node:child_process'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -177,10 +178,27 @@ export function findProfileDir() {
   return null
 }
 
-/** Resolve the package manager binary DSH ships with, falling back to PATH. */
-function pnpmCommand() {
-  const runtime = process.env.DSH_RUNTIME_PNPM
-  if (runtime && existsSync(runtime)) return { cmd: process.execPath, args: [runtime] }
+/**
+ * Resolve the package manager to run the install with.
+ *
+ * DSH does not put its bundled pnpm on the child process PATH, so `spawn('pnpm')`
+ * fails with ENOENT inside the DSH host. Look for the bundled binary first and
+ * only fall back to PATH last.
+ */
+export function pnpmCommand() {
+  if (process.env.DSH_RUNTIME_PNPM && existsSync(process.env.DSH_RUNTIME_PNPM)) {
+    return { cmd: process.execPath, args: [process.env.DSH_RUNTIME_PNPM] }
+  }
+  const dshHome = process.env.DSH_HOME ? resolve(process.env.DSH_HOME) : join(homedir(), '.dsh')
+  const runtimes = join(dshHome, 'dsh-runtimes')
+  try {
+    for (const name of readdirSync(runtimes)) {
+      const candidate = join(runtimes, name, 'dependencies', 'pnpm', 'bin', 'pnpm.cjs')
+      if (existsSync(candidate)) return { cmd: process.execPath, args: [candidate] }
+    }
+  } catch {
+    /* no runtimes directory: fall through */
+  }
   return { cmd: 'pnpm', args: [] }
 }
 

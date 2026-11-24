@@ -1,6 +1,6 @@
 {
   "name": "dsh-opusmc-viewer",
-  "version": "3.0.10",
+  "version": "3.0.11",
   "description": "MC建筑工坊：先思考后建造的 Minecraft 建筑工作流 DSH 插件。写代码前必须先交设计书（八节含体量档位与 ≥8 行算式），否则 design=BLOCK 不生成；四道闸门（design / aesthetic / walkable / 一致性）不过一律内部返工。体量按档位自报（小 <10k、中型 10k~80k、大型 ≥100k，默认中型 20k~50k）。含 mc_* 在线施工工具、mc_build_code 蓝图生成、vendored 构建脚本（Arena/aesthetic_kit/checks/build_kit）、可通行与装饰承托与净空三项自检，以及右下角建筑上帝视角面板实时预览。自包含，clone 后无需额外配置即可使用。",
   "keywords": [
     "dsh",
