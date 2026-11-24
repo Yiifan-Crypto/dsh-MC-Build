@@ -1,5 +1,5 @@
 __ModuleLoader__.load({
-  id: '@local/opusmc-viewer',
+  id: 'dsh-opusmc-viewer',
   factory(require) {
     const React = require('react');
     const h = React.createElement;

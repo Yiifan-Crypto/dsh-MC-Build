@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.2] - 2026-11-25
+
+### Fixed
+
+- **The 建筑上帝视角 panel never appeared after renaming the package.** `client.js`
+  still registered its browser bundle under the retired id
+  `@local/opusmc-viewer`, while `package.json` now says `dsh-opusmc-viewer`. DSH
+  mounts client bundles by package name, so the host half loaded (routes and
+  tools worked) but the client half was silently skipped — no button, no error
+  anywhere. The module id now matches the package name.
+- Added a regression test that fails if the client module id and the package
+  name ever drift apart again.
+
 ## [3.0.1] - 2026-11-25
 
 ### Fixed
