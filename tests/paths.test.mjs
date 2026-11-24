@@ -5,22 +5,36 @@ import { tmpdir } from 'node:os'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  BUNDLE_DIR, DESIGN_DIR, LITEMATIC_DIR, OUTPUT_DIR, SHOT_DIR, SCRIPTS_DIR,
-  VIEWER_DIR, ENV_LITEMATIC_DIR, ENV_PROJECT_DIR, resolveProjectDir,
+  BUNDLE_DIR, DESIGN_DIR, LITEMATIC_DIR, OUTPUT_DIR, SAMPLES_DIR, SHOT_DIR, SCRIPTS_DIR,
+  USER_ROOT, VIEWER_DIR, ENV_LITEMATIC_DIR, ENV_PROJECT_DIR, resolveProjectDir,
 } from '../paths.mjs'
 
 const SOURCES = ['paths.mjs', 'index.js', 'client.js', 'mctools.mjs', 'mcbuild.mjs', 'render-shot.cjs']
 
-test('every exported directory lives inside the bundle', () => {
-  for (const [label, dir] of [
-    ['SCRIPTS_DIR', SCRIPTS_DIR], ['VIEWER_DIR', VIEWER_DIR], ['OUTPUT_DIR', OUTPUT_DIR],
-    ['LITEMATIC_DIR', LITEMATIC_DIR], ['SHOT_DIR', SHOT_DIR], ['DESIGN_DIR', DESIGN_DIR],
-  ]) {
+test('bundled assets stay inside the bundle', () => {
+  for (const [label, dir] of [['SCRIPTS_DIR', SCRIPTS_DIR], ['VIEWER_DIR', VIEWER_DIR], ['SAMPLES_DIR', SAMPLES_DIR]]) {
     assert.ok(isAbsolute(dir), `${label} is absolute`)
     const rel = relative(BUNDLE_DIR, dir)
     assert.ok(!rel.startsWith('..'), `${label} is inside the bundle`)
-    assert.ok(!rel.includes('..' + sep), `${label} does not escape the bundle`)
   }
+})
+
+test('user build output lives OUTSIDE the bundle', () => {
+  // Package managers rebuild node_modules on update. If builds were stored in
+  // the bundle, `pnpm update` would silently delete the user's work.
+  for (const [label, dir] of [['OUTPUT_DIR', OUTPUT_DIR], ['LITEMATIC_DIR', LITEMATIC_DIR], ['SHOT_DIR', SHOT_DIR]]) {
+    assert.ok(isAbsolute(dir), `${label} is absolute`)
+    assert.ok(
+      !dir.toLowerCase().includes('node_modules'),
+      `${label} must not sit under node_modules (got ${dir})`,
+    )
+    assert.ok(dir.startsWith(USER_ROOT), `${label} lives under the DSH home tree`)
+  }
+})
+
+test('the user output root is the DSH home tree', () => {
+  assert.equal(OUTPUT_DIR, join(USER_ROOT, 'opusmc'))
+  assert.equal(LITEMATIC_DIR, join(USER_ROOT, 'opusmc', 'litematic'))
 })
 
 test('resolveProjectDir defaults to the bundle itself', async () => {

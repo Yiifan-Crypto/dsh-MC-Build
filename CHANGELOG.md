@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.8] - 2026-11-25
+
+### Fixed
+
+- **更新会删掉用户自己建的建筑。** 蓝图原本写在插件包内的 `output/litematic`，
+  而 `pnpm add` / `pnpm update` 会重建整个包目录——一次更新就等于清空作品。
+  实测升级 3.0.6 → 3.0.7 后面板里的蓝图从 32 个掉到 1 个。
+
+  现在用户数据放在包外：`~/.dsh/opusmc/`（可用 `DSH_HOME` 重定向）。
+  - 包内目录仍在扫描列表里，老安装的蓝图当场可见；
+  - 首次加载时会把包内残留的蓝图**复制**（不覆盖）到持久目录，升级不再丢作品；
+  - 截图与设计稿同样移到包外。
+
+### Added
+
+- 测试断言用户产物目录不得位于 `node_modules` 下，防止以后又把它挪回包里。
+
 ## [3.0.7] - 2026-11-25
 
 ### Fixed

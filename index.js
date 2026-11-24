@@ -3,10 +3,13 @@
 // converted .litematic builds over a named webserver route, so the Client panel
 // can load them in an iframe on the same origin.
 import { readFile, readdir, stat } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync, mkdirSync, copyFileSync } from 'node:fs'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { ENV_LITEMATIC_DIR, LITEMATIC_DIR, SAMPLES_DIR, VIEWER_DIR, resolveProjectDir } from './paths.mjs'
+import {
+  ENV_LITEMATIC_DIR, LEGACY_LITEMATIC_DIR, LITEMATIC_DIR, SAMPLES_DIR, VIEWER_DIR,
+  OUTPUT_DIR, resolveProjectDir,
+} from './paths.mjs'
 import { checkVersion, updateToLatest } from './version.mjs'
 // mctools.mjs is hot-reloaded when edited so fixes take effect without a
 // full DSH restart (tool names/schemas are re-registered on next mount).
@@ -60,6 +63,8 @@ const BUILD_DIRS = [
   process.env[ENV_LITEMATIC_DIR],
   PROJECT_DIR ? join(PROJECT_DIR, 'output', 'litematic') : undefined,
   LITEMATIC_DIR,
+  // Builds written by versions that still kept output inside the bundle.
+  LEGACY_LITEMATIC_DIR,
   SAMPLES_DIR,
 ].filter((v) => typeof v === 'string' && v.length > 0)
   .filter((v, i, all) => all.indexOf(v) === i)
@@ -321,7 +326,29 @@ function mountTools(ctx) {
  * Register the route, the plan skill and the construction tools.
  * @param ctx - plugin context carrying the webServer service.
  */
+/**
+ * Move builds written by older versions out of the bundle and into the persistent
+ * user directory. Package managers rebuild node_modules on update, which used to
+ * destroy the user's own builds — anything still sitting under the bundle is
+ * copied across once, and never overwritten.
+ */
+function migrateLegacyBuilds() {
+  try {
+    if (!existsSync(LEGACY_LITEMATIC_DIR)) return
+    mkdirSync(LITEMATIC_DIR, { recursive: true })
+    for (const entry of readdirSync(LEGACY_LITEMATIC_DIR)) {
+      if (!entry.toLowerCase().endsWith('.litematic') && !entry.toLowerCase().endsWith('.json')) continue
+      const dst = join(LITEMATIC_DIR, entry)
+      if (existsSync(dst)) continue
+      copyFileSync(join(LEGACY_LITEMATIC_DIR, entry), dst)
+    }
+  } catch {
+    /* best effort: a failed migration must not stop the plugin from loading */
+  }
+}
+
 export function apply(ctx) {
+  migrateLegacyBuilds()
   mountSkill(ctx)
   mountTools(ctx)
   ctx.effect(() =>

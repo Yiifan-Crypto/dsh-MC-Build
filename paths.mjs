@@ -6,6 +6,7 @@
 // on a specific machine's directory layout. Environment variables can still
 // point the build project somewhere else when desired.
 import { existsSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -18,13 +19,29 @@ export const SCRIPTS_DIR = join(BUNDLE_DIR, 'scripts')
 /** Bundled third-party OpusMC viewer engine. */
 export const VIEWER_DIR = join(BUNDLE_DIR, 'viewer')
 
-/** Build output root (git-ignored). */
-export const OUTPUT_DIR = join(BUNDLE_DIR, 'output')
+/**
+ * Where the user's own builds live.
+ *
+ * Deliberately NOT inside the bundle: `pnpm add` / `pnpm update` rebuilds the
+ * package directory, which silently wipes anything stored under node_modules.
+ * Builds are user data and must survive an update, so they live in the DSH
+ * home tree instead.
+ */
+export const USER_ROOT = process.env.DSH_HOME
+  ? resolve(process.env.DSH_HOME)
+  : join(homedir(), '.dsh')
+
+/** Build output root (git-ignored when developing in the repo). */
+export const OUTPUT_DIR = join(USER_ROOT, 'opusmc')
 export const LITEMATIC_DIR = join(OUTPUT_DIR, 'litematic')
 export const SHOT_DIR = join(OUTPUT_DIR, 'screenshot')
 export const DESIGN_DIR = join(OUTPUT_DIR, 'design')
 
-/** Bundled sample blueprints — a fresh install has no output/ yet. */
+/** Legacy in-bundle output, still scanned so upgrades don't orphan old builds. */
+export const LEGACY_OUTPUT_DIR = join(BUNDLE_DIR, 'output')
+export const LEGACY_LITEMATIC_DIR = join(LEGACY_OUTPUT_DIR, 'litematic')
+
+/** Bundled sample blueprints — a fresh install has no builds yet. */
 export const SAMPLES_DIR = join(BUNDLE_DIR, 'samples')
 
 /** Env vars that can redirect the build project away from the bundle. */
