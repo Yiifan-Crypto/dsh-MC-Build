@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.9] - 2026-11-25
+
+### Fixed
+
+- **面板上的「更新」按钮返回 405。** DSH 的 webserver 转交给路由的 request 并不总是
+  带 `method`，于是 `method !== 'POST'` 把真实的更新请求当成非法方法拒掉了。
+  现在接受显式确认：`POST` 或 `?confirm=1` 均可，客户端两个都带。
+
+  测试同时覆盖「无确认的 GET 必须被拒」与「无 method 但带 confirm 必须放行」。
+
 ## [3.0.8] - 2026-11-25
 
 ### Fixed

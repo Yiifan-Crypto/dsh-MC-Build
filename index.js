@@ -242,7 +242,14 @@ async function handle(request) {
 
   // Install the newer version into the owning DSH profile.
   if (path === '/api/update') {
-    if (request.method !== 'POST') return json({ error: 'use POST' }, 405)
+    // The DSH webserver does not always carry the HTTP method through on the
+    // request object it hands to a route, so a bare `method !== 'POST'` check
+    // rejected real updates with 405. Accept an explicit confirmation query too.
+    const method = String(request.method || '').toUpperCase()
+    const confirmed = url.searchParams.get('confirm') === '1'
+    if (method !== 'POST' && !confirmed) {
+      return json({ error: 'POST 或加 ?confirm=1 才能执行更新' }, 405)
+    }
     try {
       return json(await updateToLatest())
     } catch (e) {

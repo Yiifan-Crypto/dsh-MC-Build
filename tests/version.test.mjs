@@ -68,7 +68,7 @@ test('/api/version reports the installed version and a shape the panel can rende
   }
 })
 
-test('/api/update rejects GET so a stray link cannot trigger an install', async () => {
+test('/api/update refuses an unconfirmed GET so a stray link cannot trigger an install', async () => {
   const { apply } = await import('../index.js')
   const route = { kind: '', path: '', resource: null }
   const ctx = {
@@ -82,5 +82,36 @@ test('/api/update rejects GET so a stray link cannot trigger an install', async 
   const res = await route.resource(new Request('http://localhost/opusmc/api/update'))
   assert.equal(res.status, 405)
   const body = await res.json()
-  assert.match(body.error, /POST/i)
+  assert.match(body.error, /confirm|POST/i)
+})
+
+test('/api/update accepts ?confirm=1 even when the request carries no method', async () => {
+  // The DSH webserver does not always pass the HTTP method through, which is
+  // exactly how the panel's update button ended up getting 405.
+  const { apply } = await import('../index.js')
+  const route = { kind: '', path: '', resource: null }
+  const ctx = {
+    get: (s) => (s === 'skills' ? { register() {} } : s === 'tools' ? { register() { return () => {} } } : undefined),
+    effect: (fn) => { fn() },
+    webServer: { register: (spec) => Object.assign(route, spec) },
+  }
+  apply(ctx)
+  await new Promise((r) => setTimeout(r, 300))
+
+  // A request-shaped object with no method, like the one DSH hands over.
+  const res = await route.resource({
+    url: 'http://localhost/opusmc/api/update?confirm=1',
+    method: undefined,
+  })
+  assert.notEqual(res.status, 405, 'an explicit confirmation must be accepted')
+  const body = await res.json()
+  // Either "already up to date" (ok:true, from===to) or "cannot install from
+  // here" (ok:false with a reason) is fine — what must never happen is the
+  // method rejection that made the panel's update button useless.
+  assert.equal(typeof body.ok, 'boolean')
+  if (body.ok === false) {
+    assert.ok(typeof body.error === 'string' && body.error.length > 0, 'the failure explains itself')
+  } else {
+    assert.equal(typeof body.from, 'string')
+  }
 })

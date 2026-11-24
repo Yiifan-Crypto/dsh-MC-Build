@@ -321,7 +321,7 @@ __ModuleLoader__.load({
         setUpdating(true);
         setUpdateMsg('');
         try {
-          const res = await fetch(base + 'api/update', { method: 'POST' });
+          const res = await fetch(base + 'api/update?confirm=1', { method: 'POST' });
           const d = await res.json();
           if (d.ok) {
             setUpdateMsg(d.to && d.to !== d.from
