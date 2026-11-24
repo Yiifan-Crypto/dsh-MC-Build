@@ -7,6 +7,7 @@ import { existsSync } from 'node:fs'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ENV_LITEMATIC_DIR, LITEMATIC_DIR, SAMPLES_DIR, VIEWER_DIR, resolveProjectDir } from './paths.mjs'
+import { checkVersion, updateToLatest } from './version.mjs'
 // mctools.mjs is hot-reloaded when edited so fixes take effect without a
 // full DSH restart (tool names/schemas are re-registered on next mount).
 import { statSync, readFileSync } from 'node:fs'
@@ -224,6 +225,25 @@ async function handle(request) {
   if (path === '/' || path === '') path = '/viewer.html'
 
   if (path === '/api/builds') return json({ builds: await listBuilds() })
+
+  // Version info for the panel's footer. `?force=1` bypasses the 5-minute cache.
+  if (path === '/api/version') {
+    try {
+      return json(await checkVersion({ force: url.searchParams.get('force') === '1' }))
+    } catch (e) {
+      return json({ error: String(e && e.message || e) }, 500)
+    }
+  }
+
+  // Install the newer version into the owning DSH profile.
+  if (path === '/api/update') {
+    if (request.method !== 'POST') return json({ error: 'use POST' }, 405)
+    try {
+      return json(await updateToLatest())
+    } catch (e) {
+      return json({ ok: false, error: String(e && e.message || e) }, 500)
+    }
+  }
 
   if (path.startsWith('/api/build/')) {
     const id = decodeURIComponent(path.slice('/api/build/'.length))

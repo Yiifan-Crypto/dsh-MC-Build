@@ -65,6 +65,35 @@ __ModuleLoader__.load({
       }
       .omc-sub { font: 400 11.5px/1.2 "Microsoft YaHei", sans-serif; color: var(--dsw-alias-text-secondary, #8d97ab); }
 
+      /* 版本徽章：平时只是个毫不起眼的小标，发现新版本才变色并变成按钮 */
+      .omc-ver {
+        height: 22px; padding: 0 8px; border-radius: 999px; cursor: pointer;
+        display: inline-flex; align-items: center; flex: none;
+        border: 1px solid var(--dsw-alias-border-subtle, rgba(255,255,255,0.1));
+        background: transparent; color: var(--dsw-alias-text-secondary, #8d97ab);
+        font: 500 10.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: .02em; white-space: nowrap;
+        transition: color .14s ease, border-color .14s ease, background .14s ease;
+      }
+      .omc-ver:hover { color: var(--dsw-alias-text-primary, #e8ecf4); border-color: var(--dsw-alias-border-strong, rgba(255,255,255,0.2)); }
+      .omc-ver:disabled { cursor: default; opacity: .7; }
+      /* 有新版本：用强调色，让它明显是「可以点的」 */
+      .omc-ver-new {
+        color: #cfe0ff; border-color: #7aa2ff66; background: #7aa2ff1f;
+        font-family: "Microsoft YaHei", system-ui, sans-serif; font-size: 11px;
+        animation: omc-pulse 2.4s ease-in-out infinite;
+      }
+      .omc-ver-new:hover { background: #7aa2ff33; border-color: #7aa2ff99; }
+      @keyframes omc-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(122,162,255,0); }
+        50% { box-shadow: 0 0 0 5px rgba(122,162,255,0.12); }
+      }
+      .omc-ver-err { color: #d9a06b; border-color: #d9a06b44; cursor: default; }
+      .omc-updatemsg {
+        flex: none; max-width: 340px; overflow: hidden; text-overflow: ellipsis;
+        color: #cfe0ff; font: 400 11px/1.2 "Microsoft YaHei", sans-serif; white-space: nowrap;
+      }
+
       .omc-spacer { flex: 1 1 auto; }
 
       .omc-group { display: flex; align-items: center; gap: 6px; }
@@ -179,6 +208,11 @@ __ModuleLoader__.load({
       const [frameKey, setFrameKey] = useState(0);
       const [error, setError] = useState('');
       const [notice, setNotice] = useState('');
+      // 版本检查：{ current, latest, hasUpdate, error }
+      const [ver, setVer] = useState(null);
+      const [checking, setChecking] = useState(false);
+      const [updating, setUpdating] = useState(false);
+      const [updateMsg, setUpdateMsg] = useState('');
       const frameRef = useRef(null);
       const pendingCam = useRef(null);
       const stampOf = useRef({});
@@ -251,10 +285,58 @@ __ModuleLoader__.load({
 
       useEffect(() => {
         if (!open) return;
+        let live = true;
         const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
       }, [open]);
+
+      // 打开面板时查一次版本（host 侧有 5 分钟缓存，不会每次真的跑 git）。
+      useEffect(() => {
+        if (!open) return;
+        let live = true;
+        setChecking(true);
+        fetch(base + 'api/version', { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((d) => { if (live) setVer(d); })
+          .catch(() => { if (live) setVer({ error: '版本检查失败' }); })
+          .finally(() => { if (live) setChecking(false); });
+        return () => { live = false; };
+      }, [open, base]);
+
+      const doCheck = useCallback(async () => {
+        setChecking(true);
+        setUpdateMsg('');
+        try {
+          const d = await (await fetch(base + 'api/version?force=1', { cache: 'no-store' })).json();
+          setVer(d);
+        } catch (e) {
+          setVer({ error: '版本检查失败：' + e.message });
+        } finally {
+          setChecking(false);
+        }
+      }, [base]);
+
+      const doUpdate = useCallback(async () => {
+        setUpdating(true);
+        setUpdateMsg('');
+        try {
+          const res = await fetch(base + 'api/update', { method: 'POST' });
+          const d = await res.json();
+          if (d.ok) {
+            setUpdateMsg(d.to && d.to !== d.from
+              ? '已更新到 v' + d.to + '，重启 DSH 后生效'
+              : '已是最新版本');
+            setVer((v) => (v ? { ...v, latest: d.to, hasUpdate: false } : v));
+          } else {
+            setUpdateMsg('更新失败：' + (d.error || '未知错误'));
+          }
+        } catch (e) {
+          setUpdateMsg('更新失败：' + e.message);
+        } finally {
+          setUpdating(false);
+        }
+      }, [base]);
 
       const src = useMemo(() => {
         const q = new URLSearchParams({ embed: '1', _v: String(frameKey) });
@@ -353,6 +435,26 @@ __ModuleLoader__.load({
             h('span', { className: 'omc-dot' }),
             h('span', { className: 'omc-title' }, '建筑上帝视角'),
             h('span', { className: 'omc-sub' }, 'OpusMC · 蓝图预览'),
+            // 版本徽章：显示当前版本，有新版本时变成可点击的「更新」入口
+            ver && ver.current
+              ? (ver.hasUpdate
+                ? h('button', {
+                  type: 'button', className: 'omc-ver omc-ver-new',
+                  onClick: doUpdate, disabled: updating,
+                  title: '发现新版本 v' + ver.latest + '，点击更新（更新后需重启 DSH）',
+                }, updating ? '更新中…' : '↑ v' + ver.latest + ' 可更新')
+                : h('button', {
+                  type: 'button', className: 'omc-ver',
+                  onClick: doCheck, disabled: checking,
+                  title: checking ? '检查中…' : 'v' + ver.current + '，点击检查更新',
+                }, checking ? '检查中…' : 'v' + ver.current))
+              : null,
+            ver && ver.error
+              ? h('span', { className: 'omc-ver omc-ver-err', title: ver.error }, '版本未知')
+              : null,
+            updateMsg
+              ? h('span', { className: 'omc-updatemsg', title: updateMsg }, updateMsg)
+              : null,
             h('span', { className: 'omc-spacer' }),
             builds.length > 0 && h('input', {
               className: 'omc-search',

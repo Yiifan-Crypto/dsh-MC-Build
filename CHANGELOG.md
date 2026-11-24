@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.6] - 2026-11-25
+
+### Added
+
+- **版本检查与面板内更新.** 建筑上帝视角面板的标题栏现在显示当前版本徽章：
+  - 平时是一个低调的 `v3.0.6`，点它强制重新检查。
+  - 发现新版本时变成高亮的 `↑ v3.0.7 可更新`，点一下直接安装，完成后提示重启 DSH。
+
+  实现在 `version.mjs`，新增两个接口：`GET /opusmc/api/version`（带 5 分钟缓存，
+  `?force=1` 跳过）与 `POST /opusmc/api/update`（拒绝 GET，避免误触）。
+
+- 新增两个导出：`GET /opusmc/api/version` / `POST /opusmc/api/update`。
+
+### Notes
+
+- 版本源是**仓库的语义化 tag**，用 `git ls-remote --tags` 读取。这样做的原因是本机
+  到 `api.github.com` / `raw.githubusercontent.com` 的 HTTP 全部不通，只有 git 协议可用；
+  顺带好处是公开仓库无需 token、只花一次往返、不下载任何文件。
+- 更新走 profile 自带的包管理器把新版本装进去，**不改 package.json、不删任何非自有的文件**。
+  运行中的进程仍持有旧代码，所以装完必须重启 DSH 才生效——界面会明确提示这一点。
+
 ## [3.0.5] - 2026-11-25
 
 ### Fixed
