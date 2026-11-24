@@ -150,6 +150,20 @@ npm test
 - `mc_*` 工具的建造 / 撤销 / 区域编辑 / 导出端到端
 - `mc_build_code` 的 `design=BLOCK` 闸门
 - 路径解析不含硬编码盘符
+- client 模块 id 与包名一致（不一致会导致面板静默消失）
+- `/opusmc` 路由、示例蓝图与蓝图转换
+
+### 安装自检
+
+装完后想确认这个安装是好的，不用先怀疑插件：
+
+```bash
+node scripts/verify-install.mjs            # 检查本包
+node scripts/verify-install.mjs <插件目录>  # 检查另一个安装位置
+```
+
+它会挂载一个最小 DSH 宿主、用真实 HTTP 提供 `/opusmc` 路由、
+建造一栋房子并导出蓝图，逐项报告 15 个检查点的通过情况。
 
 ## 第三方声明
 

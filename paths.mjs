@@ -24,6 +24,9 @@ export const LITEMATIC_DIR = join(OUTPUT_DIR, 'litematic')
 export const SHOT_DIR = join(OUTPUT_DIR, 'screenshot')
 export const DESIGN_DIR = join(OUTPUT_DIR, 'design')
 
+/** Bundled sample blueprints — a fresh install has no output/ yet. */
+export const SAMPLES_DIR = join(BUNDLE_DIR, 'samples')
+
 /** Env vars that can redirect the build project away from the bundle. */
 export const ENV_PROJECT_DIR = 'MC_BUILD_PROJECT_DIR'
 export const ENV_LITEMATIC_DIR = 'OPUSMC_BUILD_DIR'

@@ -4,6 +4,29 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.4] - 2026-11-25
+
+### Fixed
+
+- **`MC_BUILD_PROJECT_DIR` did not redirect the panel.** `mc_*` tools wrote to
+  the configured project while `index.js` kept listing the bundle's own
+  `output/litematic`, so a redirected project exported blueprints that never
+  appeared in the 建筑上帝视角 panel. Both sides now resolve the project through
+  the same `resolveProjectDir()`, and the panel additionally scans the
+  configured project's `output/litematic`.
+
+### Added
+
+- `scripts/verify-install.mjs` — a self-check that mounts an installed copy
+  against a minimal DSH host, serves its routes over real HTTP, builds, renders
+  and exports a blueprint, and reports pass/fail for 15 checks. Run it to
+  confirm an install is healthy:
+  `node scripts/verify-install.mjs [plugin-dir]`.
+
+### Changed
+
+- `SAMPLES_DIR` moved into `paths.mjs` so every path lives in one place.
+
 ## [3.0.3] - 2026-11-25
 
 ### Added

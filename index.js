@@ -6,7 +6,7 @@ import { readFile, readdir, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { ENV_LITEMATIC_DIR, LITEMATIC_DIR, VIEWER_DIR } from './paths.mjs'
+import { ENV_LITEMATIC_DIR, LITEMATIC_DIR, SAMPLES_DIR, VIEWER_DIR, resolveProjectDir } from './paths.mjs'
 // mctools.mjs is hot-reloaded when edited so fixes take effect without a
 // full DSH restart (tool names/schemas are re-registered on next mount).
 import { statSync, readFileSync } from 'node:fs'
@@ -51,15 +51,17 @@ const MIME = {
   '.ico': 'image/x-icon',
 }
 
-/** Bundled sample blueprints — new installs have no output/ yet. */
-const SAMPLES_DIR = join(BUNDLE_DIR, 'samples')
+/** The project the tools write into (may be redirected by env). */
+const PROJECT_DIR = resolveProjectDir()
 
 /** Where generated .litematic files are discovered, first existing wins. */
 const BUILD_DIRS = [
   process.env[ENV_LITEMATIC_DIR],
+  PROJECT_DIR ? join(PROJECT_DIR, 'output', 'litematic') : undefined,
   LITEMATIC_DIR,
   SAMPLES_DIR,
 ].filter((v) => typeof v === 'string' && v.length > 0)
+  .filter((v, i, all) => all.indexOf(v) === i)
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {

@@ -17,7 +17,7 @@
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { mkdirSync } from 'node:fs'
-import { BUNDLE_DIR, SCRIPTS_DIR } from './paths.mjs'
+import { BUNDLE_DIR, SCRIPTS_DIR, resolveProjectDir } from './paths.mjs'
 const require = createRequire(import.meta.url)
 
 // The build scripts are vendored inside this bundle (scripts/), so the tools
@@ -195,7 +195,9 @@ function tool(name, description, parameters, execute) {
 }
 
 export function createMCTools(opts = {}) {
-  const project = () => opts.projectDir || BUNDLE_DIR
+  // Same project resolution as mc_build_code and the panel's build list, so a
+  // redirected project writes where the panel looks for it.
+  const project = () => opts.projectDir || resolveProjectDir() || BUNDLE_DIR
   const shotDir = () => join(project(), 'output', 'screenshot')
   const litDir = () => join(project(), 'output', 'litematic')
 
