@@ -89,10 +89,12 @@
 
 ### 环境变量（可选，均有默认值）
 
+两个变量管的事**不一样**，别混用：
+
 | 变量 | 作用 | 默认 |
 |---|---|---|
-| `MC_BUILD_PROJECT_DIR` | 指定构建工程目录（需含 `scripts/litematic.cjs`） | 插件自身目录 |
-| `OPUSMC_BUILD_DIR` | 指定 `.litematic` 输出目录 | 插件自身 `output/litematic` |
+| `OPUSMC_BUILD_DIR` | 只管 `.litematic` 放在哪。`mc_*` 工具写到这里，面板也扫描这里——改了它，导出的蓝图仍然出现在面板里。**想换输出位置的用这个。** | 插件自身 `output/litematic` |
+| `MC_BUILD_PROJECT_DIR` | 指定一个**完整构建工程**（要有 `scripts/litematic.cjs` 和 `output/`）。只有 `mc_build_code` 需要它，因为那条路线真的要跑 CLI。 | 插件自身目录 |
 
 **正常安装不需要设置任何环境变量。**
 

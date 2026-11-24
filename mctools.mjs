@@ -17,7 +17,7 @@
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { mkdirSync } from 'node:fs'
-import { BUNDLE_DIR, SCRIPTS_DIR, resolveProjectDir } from './paths.mjs'
+import { ENV_LITEMATIC_DIR, LITEMATIC_DIR, SCRIPTS_DIR, SHOT_DIR } from './paths.mjs'
 const require = createRequire(import.meta.url)
 
 // The build scripts are vendored inside this bundle (scripts/), so the tools
@@ -195,11 +195,21 @@ function tool(name, description, parameters, execute) {
 }
 
 export function createMCTools(opts = {}) {
-  // Same project resolution as mc_build_code and the panel's build list, so a
-  // redirected project writes where the panel looks for it.
-  const project = () => opts.projectDir || resolveProjectDir() || BUNDLE_DIR
-  const shotDir = () => join(project(), 'output', 'screenshot')
-  const litDir = () => join(project(), 'output', 'litematic')
+  // Output directories. Two distinct knobs, deliberately:
+  //   opts.projectDir / MC_BUILD_PROJECT_DIR — a full build project (scripts +
+  //     output); mc_build_code needs the CLI, so it must gain scripts/ too.
+  //   OPUSMC_BUILD_DIR — just where .litematic files live. The panel scans the
+  //     same value, so exports stay visible without copying the toolchain.
+  // The in-memory mc_* tools never run the CLI, so for them only the output
+  // directories matter.
+  const litDir = () =>
+    opts.projectDir
+      ? join(opts.projectDir, 'output', 'litematic')
+      : process.env[ENV_LITEMATIC_DIR] || LITEMATIC_DIR
+  const shotDir = () =>
+    opts.projectDir
+      ? join(opts.projectDir, 'output', 'screenshot')
+      : SHOT_DIR
 
   return [
     tool('mc_health', '检查 MC 施工模型是否就绪、世界尺寸、方块数、可撤销步数。施工前先调用确认。',
