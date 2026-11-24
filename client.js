@@ -321,7 +321,10 @@ __ModuleLoader__.load({
         setUpdating(true);
         setUpdateMsg('');
         try {
-          const res = await fetch(base + 'api/update?confirm=1', { method: 'POST' });
+          // GET, not POST: DSH's webserver only forwards GET to a route, so a POST
+// never reaches the plugin at all (it is answered 405 upstream, with an
+// empty body). The confirm flag is what makes this safe to keep on GET.
+          const res = await fetch(base + 'api/update?confirm=1', { cache: 'no-store' });
           const d = await res.json();
           if (d.ok) {
             setUpdateMsg(d.to && d.to !== d.from

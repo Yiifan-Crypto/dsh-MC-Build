@@ -4,6 +4,20 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.10] - 2026-11-25
+
+### Fixed
+
+- **「更新」按钮仍然拿到 405，但这次跟方法判断无关。** 实测 DSH 的 webserver
+  **只把 GET 转发给路由**：`POST /opusmc/api/update` 在到达插件之前就被上游
+  回成 405，而且**响应体是空的**——正是这一点让它看起来像插件自己的拒绝。
+
+  客户端改用 `GET /opusmc/api/update?confirm=1`。确认标记仍是准入条件
+  （无 `confirm` 的请求一律 405），所以不会因为换成 GET 就被误触。
+
+  实测：`GET ...?confirm=1` → `200 {"ok":true,"from":"3.0.10","to":"3.0.10"}`；
+  `GET` 无 confirm → `405`。
+
 ## [3.0.9] - 2026-11-25
 
 ### Fixed
