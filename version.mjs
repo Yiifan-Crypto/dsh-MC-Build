@@ -21,6 +21,9 @@ const BUNDLE_DIR = dirname(fileURLToPath(import.meta.url))
 /** Public repository URL — no credentials required to read tags. */
 export const REPO_URL = 'https://github.com/Yiifan-Crypto/dsh-MC-Build.git'
 
+/** The same repository in pnpm's github: shorthand, for install specs. */
+export const GH_SHORTHAND = 'github:Yiifan-Crypto/dsh-MC-Build'
+
 /** How long a successful check stays fresh, in ms. */
 const CACHE_TTL = 5 * 60 * 1000
 
@@ -209,7 +212,11 @@ export async function updateToLatest(opts = {}) {
   }
 
   const { cmd, args } = pnpmCommand()
-  const r = await run(cmd, [...args, 'add', 'dsh-opusmc-viewer@' + info.latest], {
+  // This package lives on GitHub, not in the npm registry, so the install spec
+  // must be a git reference pinned to the release tag. `pkg@3.0.6` would be
+  // resolved against npmjs and 404.
+  const spec = GH_SHORTHAND + '#v' + info.latest
+  const r = await run(cmd, [...args, 'add', spec], {
     cwd: profile,
     timeoutMs: 5 * 60 * 1000,
   })

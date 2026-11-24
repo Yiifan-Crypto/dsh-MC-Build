@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.7] - 2026-11-25
+
+### Fixed
+
+- **3.0.6 的「更新」按钮装不上。** 它调用 `pnpm add dsh-opusmc-viewer@3.0.6`，而 pnpm
+  会拿版本号去 **npm 官方 registry** 查——这个包只存在于 GitHub，于是直接
+  `ERR_PNPM_FETCH_404`。安装规格改为 git 引用并钉到发布标签
+  （`github:Yiifan-Crypto/dsh-MC-Build#v3.0.7`），实测能正常升级。
+
+  这也解释了为什么更新必须走标签：`#tag` 是 git 层面的东西，不需要包进 npm。
+
 ## [3.0.6] - 2026-11-25
 
 ### Added
