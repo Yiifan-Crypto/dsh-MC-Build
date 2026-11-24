@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "MC建筑工坊",
+    "description": "先思考后建造的 Minecraft 建筑工作流：写代码前先交设计书（八节含体量档位与算式），不过则 design=BLOCK 不生成；四道闸门（design / aesthetic / walkable / 一致性）不过一律内部返工。体量按档位自报（小 <10k、中型 10k~80k、大型 ≥100k，默认中型 20k~50k）。含两条路线（mc_* 在线施工 / .litematic 蓝图）、build_kit 原语（色值+材质解析、五档色阶、剖面旋转体、放射局部坐标系）、可通行/装饰承托/净空三项自检，以及上帝视角实时预览。",
+    "detail": "docs/DETAIL.md"
+  }
+}

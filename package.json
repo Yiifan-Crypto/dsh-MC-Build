@@ -1,0 +1,73 @@
+{
+  "name": "dsh-opusmc-viewer",
+  "version": "3.0.0",
+  "description": "MC建筑工坊：先思考后建造的 Minecraft 建筑工作流 DSH 插件。写代码前必须先交设计书（八节含体量档位与 ≥8 行算式），否则 design=BLOCK 不生成；四道闸门（design / aesthetic / walkable / 一致性）不过一律内部返工。体量按档位自报（小 <10k、中型 10k~80k、大型 ≥100k，默认中型 20k~50k）。含 mc_* 在线施工工具、mc_build_code 蓝图生成、vendored 构建脚本（Arena/aesthetic_kit/checks/build_kit）、可通行与装饰承托与净空三项自检，以及右下角建筑上帝视角面板实时预览。自包含，clone 后无需额外配置即可使用。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "minecraft",
+    "litematic",
+    "litematica",
+    "building",
+    "architecture",
+    "mc-architect"
+  ],
+  "license": "MIT",
+  "author": "Yiifan-Crypto",
+  "homepage": "https://github.com/Yiifan-Crypto/dsh-MC-Build",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yiifan-Crypto/dsh-MC-Build.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yiifan-Crypto/dsh-MC-Build/issues"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "paths.mjs",
+    "mctools.mjs",
+    "mcbuild.mjs",
+    "litematic.mjs",
+    "render-shot.cjs",
+    "cordis.patch.yml",
+    "icon.svg",
+    "scripts",
+    "skills",
+    "references",
+    "locale",
+    "docs",
+    "viewer",
+    "NOTICE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:watch": "node --test --watch tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20.11.0",
+    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  }
+}

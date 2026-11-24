@@ -1,0 +1,53 @@
+# Changelog
+
+All notable changes to this project are documented here.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.0] - 2026-11-25
+
+### Added
+
+- **Self-contained distribution.** The build toolchain previously living in an
+  external `build-litematic` project is now vendored into `scripts/`
+  (`litematic.cjs`, `aesthetic.cjs`, `aesthetic_kit.cjs`, `require_design.cjs`,
+  `scale.cjs`, `check_reuse.cjs`, `checks.cjs`, `verify_reachable.cjs`,
+  `scenery.cjs`, `build_kit.cjs`). The plugin now runs from any install
+  location with no external project required.
+- `paths.mjs` — single source of path resolution. Everything resolves relative
+  to the bundle; `MC_BUILD_PROJECT_DIR` and `OPUSMC_BUILD_DIR` can still
+  redirect the build project and the `.litematic` output directory.
+- `tests/` — `node:test` suite covering `.litematic` round-trips, the `mc_*`
+  tool set (build / undo / region / export), the `design=BLOCK` gate, and the
+  absence of hard-coded drive paths.
+- `.github/workflows/ci.yml` — runs the test suite on `ubuntu-latest` and
+  `windows-latest`.
+- `NOTICE.md` and `viewer/NOTICE.md` — explicit third-party declaration for the
+  bundled OpusMC engine.
+- `README.md`, `CONTRIBUTING.md`, `LICENSE` (MIT), `.gitignore`, `.gitattributes`.
+
+### Changed
+
+- **Removed all hard-coded absolute paths.** The previous build project path
+  (`D:/AI/工作区/建筑/build-litematic`) and the `root.startsWith('D:')` guard in
+  `mcbuild.mjs` are gone. The build project defaults to the bundle itself.
+- **Restructured the repository.** The plugin root is now the repository root:
+  the former `bundle/` contents moved up one level, and the skills moved into
+  `skills/`.
+- Package renamed from the private `@local/opusmc-viewer` to the public
+  `dsh-opusmc-viewer`. The Cordis plugin name (`opusmc-viewer`) and the
+  `/opusmc` route are unchanged, so existing installs keep working.
+- `mc_screenshot` scale range widened from 2–12 to 2–14, matching the tool
+  description.
+- `render-shot.cjs` now loads its colour table from the vendored
+  `scripts/litematic.cjs` instead of an absolute path.
+
+### Removed
+
+- Backup and scratch files (`*.bak`, `_backups/`, stray empty files) from the
+  tracked tree.
+
+## [2.3.0]
+
+- Prior release (pre-consolidation). Served the bundle from the external
+  `build-litematic` project and required that project to exist on disk.

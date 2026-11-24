@@ -1,0 +1,4 @@
+{
+  "name": "build-litematic",
+  "description": "生成 Minecraft Java 版 .litematic 投影（Litematica）的技术手册：builder 结构（导出 name/desc/size/entries/build）、Arena 画布 API、scenery 与 city 原语、build_kit 工具（mat/matReport 色值+材质解析并报色差、teamPalette 五档色阶、revolve 剖面旋转体、frame 放射局部坐标系、checkComplete 完整性守卫），以及各闸门的调用方式（require_design、aesthetic.grade、walkableReport、supportReport、headroomReport、verify_reachable）。本 skill 只写 API 与调用，规则一律引用 references/build-rules.md。适用于房子/城堡/塔/竞技场/农庄/桥/广场/遗迹/地形/河流/森林/城镇。当用户要动手写 builder 代码、需要具体 API 或用例时加载。"
+}

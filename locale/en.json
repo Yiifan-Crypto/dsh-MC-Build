@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "MC Building Studio",
+    "description": "A think-first Minecraft building workflow: no code is generated until a design document (criteria, volume tier, layout, arithmetic, draw order, risks, cuts, acceptance) is written — otherwise design=BLOCK. Four hard gates (design / aesthetic / walkable / consistency) force internal rework instead of shipping. Body scale is declared and reported (small <10k, medium 10k~80k, large ≥100k; default medium 20k~50k). Two routes (live mc_* tools or .litematic blueprints), build_kit primitives (colour+material resolver, five-tone palettes, profile lathe, radial local frames), walkability/support/headroom self-checks, and a live god-view panel.",
+    "detail": "docs/DETAIL.md"
+  }
+}
