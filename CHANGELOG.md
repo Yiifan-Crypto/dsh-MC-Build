@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2026-11-25
+
+### Fixed
+
+- `cordis.patch.yml` still inserted the plugin under its old private package
+  name (`@local/opusmc-viewer`), which does not exist for anyone installing
+  from GitHub. The inserted name now matches the published package
+  (`dsh-opusmc-viewer`), so a fresh `github:` install enables the bundle
+  correctly. The Cordis row id (`opusmc-viewer`) is unchanged.
+
 ## [3.0.0] - 2026-11-25
 
 ### Added
