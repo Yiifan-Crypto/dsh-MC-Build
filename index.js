@@ -51,10 +51,14 @@ const MIME = {
   '.ico': 'image/x-icon',
 }
 
+/** Bundled sample blueprints — new installs have no output/ yet. */
+const SAMPLES_DIR = join(BUNDLE_DIR, 'samples')
+
 /** Where generated .litematic files are discovered, first existing wins. */
 const BUILD_DIRS = [
   process.env[ENV_LITEMATIC_DIR],
   LITEMATIC_DIR,
+  SAMPLES_DIR,
 ].filter((v) => typeof v === 'string' && v.length > 0)
 
 function json(body, status = 200) {
@@ -77,6 +81,7 @@ function sidecarOf(dir, id) {
       tier: typeof j.tier === 'string' ? j.tier : undefined,
       tierLabel: typeof j.tierLabel === 'string' ? j.tierLabel : undefined,
       dims: typeof j.size === 'string' ? j.size : undefined,
+      sample: j.sample === true ? true : undefined,
     }
   } catch { return {} }
 }
@@ -104,7 +109,13 @@ async function listBuilds() {
       } catch {
         /* a vanished file simply reports no size */
       }
-      out.push({ id, file: entry, dir, bytes: size, mtimeMs, ...sidecarOf(dir, id) })
+      out.push({
+        id, file: entry, dir, bytes: size, mtimeMs,
+        ...sidecarOf(dir, id),
+        // Anything served from the bundled samples directory is a built-in
+        // demo, not a build the user generated.
+        ...(dir === SAMPLES_DIR ? { sample: true } : {}),
+      })
     }
   }
   // 新生成的建筑排在最上面：按修改时间倒序（时间相同再按 id）

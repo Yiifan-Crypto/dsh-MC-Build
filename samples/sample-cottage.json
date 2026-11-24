@@ -1,0 +1,10 @@
+{
+  "id": "sample-cottage",
+  "file": "sample-cottage.litematic",
+  "size": "16x9x16",
+  "blocks": 900,
+  "palette": 6,
+  "tier": "small",
+  "tierLabel": "小建筑",
+  "sample": true
+}

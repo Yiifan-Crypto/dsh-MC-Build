@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.3] - 2026-11-25
+
+### Added
+
+- **A bundled sample blueprint** (`samples/sample-cottage.litematic`). A fresh
+  install has no `output/` directory yet, so `listBuilds()` found nothing and
+  the 建筑上帝视角 panel opened on an empty viewport reading "没有找到
+  .litematic 建筑文件" — which reads as a broken plugin rather than an empty
+  one. The sample is discovered alongside generated builds, flagged as a
+  built-in demo in the dropdown (`示例`), and converts through the same payload
+  path as any user build.
+
+### Changed
+
+- The empty-state message now explains what to do
+  ("用 mc_* 工具建造后 mc_export，蓝图会出现在这里") instead of just stating
+  that nothing was found.
+
 ## [3.0.2] - 2026-11-25
 
 ### Fixed

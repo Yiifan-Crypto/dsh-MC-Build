@@ -200,7 +200,7 @@ __ModuleLoader__.load({
             if (!live) return;
             setBuilds(list);
             for (const b of list) stampOf.current[b.id] = b.mtimeMs;
-            if (!list.length) setError('没有找到 .litematic 建筑文件');
+            if (!list.length) setError('还没有建筑。用 mc_* 工具建造后 mc_export，蓝图会出现在这里。');
             else {
               setError('');
               setBuildId((cur) => (cur && list.some((b) => b.id === cur) ? cur : list[0].id));
@@ -231,7 +231,7 @@ __ModuleLoader__.load({
             const ids = list.map((b) => b.id).join('|'), known = builds.map((b) => b.id).join('|');
             if (ids !== known) {
               setBuilds(list);
-              setError(list.length ? '' : '没有找到 .litematic 建筑文件');
+              setError(list.length ? '' : '还没有建筑。用 mc_* 工具建造后 mc_export，蓝图会出现在这里。');
               if (!list.some((b) => b.id === buildId) && list.length) setBuildId(list[0].id);
             }
             if (changed && list.some((b) => b.id === buildId)) {
@@ -305,6 +305,8 @@ __ModuleLoader__.load({
         // 旁注里带来的信息：方块量 + 体量档位（没有旁注就退回文件大小）
         const meta = (b) => {
           const parts = [];
+          // 内置示例蓝图：标出来，免得和用户自己生成的建筑混淆
+          if (b.sample) parts.push('示例');
           if (typeof b.blocks === 'number' && b.blocks > 0) {
             parts.push((b.blocks >= 10000 ? (b.blocks / 1000).toFixed(1) + 'k' : String(b.blocks)) + ' 块');
           }

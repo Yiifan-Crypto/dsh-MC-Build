@@ -65,11 +65,22 @@ test('the /opusmc route serves the viewer and the builds API', async () => {
   assert.equal(viewer.status, 200)
   assert.match(viewer.body, /<html|<!DOCTYPE/i)
 
-  // The builds list is a JSON envelope (possibly empty on a fresh checkout).
+  // The builds list is a JSON envelope. A fresh install has no output/ yet,
+  // but the bundled sample must still be listed so the panel is never empty.
   const builds = await get('/opusmc/api/builds')
   assert.equal(builds.status, 200)
   const parsed = JSON.parse(builds.body)
   assert.ok(Array.isArray(parsed.builds))
+  const sample = parsed.builds.find((b) => b.sample === true)
+  assert.ok(sample, 'the bundled sample blueprint is listed for fresh installs')
+  assert.ok(sample.blocks > 0, 'the sample sidecar is read (block count present)')
+
+  // The sample converts to a viewer payload like any other build.
+  const payload = await get('/opusmc/api/build/' + sample.id)
+  assert.equal(payload.status, 200)
+  const conv = JSON.parse(payload.body)
+  assert.ok(Array.isArray(conv.keys) && conv.keys.includes('air'))
+  assert.ok(Array.isArray(conv.runs) && conv.runs.length > 0)
 
   // An unknown build id is a clean 404, not a crash.
   const missing = await get('/opusmc/api/build/does-not-exist')
